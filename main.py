@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication
 from utils import create_qr
 import datetime
-from Interface import main, app
+from Interface import main, app, admin_panel,settings
 from threading import Thread
 import requests
 import os
@@ -13,20 +13,16 @@ from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
 from PyQt5.QtCore import QTimer
 
 
-def event():
-    if main.mode == 's':
-        main.changePicture()
+
 
 
 if 'picture.png' in os.listdir():
     os.remove('picture.png')
 
-timer = QTimer()
-timer.setInterval(main.interval)
-timer.timeout.connect(event)
-timer.start()
 
-main.show()
+
+
+admin_panel.show()
 web_app = Flask(__name__)
 
 api = Api(web_app)

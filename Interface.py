@@ -7,15 +7,20 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, Q
 from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
 from PyQt5.QtCore import QTimer, Qt
 
+settingsUI = os.path.abspath('SettingsWindow.ui')
+admin_panelUI = os.path.abspath('AdminPanel.ui')
+config = os.path.abspath('config.cfg')
+
 main = ''
 admin_panel = ''
+settings = ''
 
 
 class ShowWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon('monitor.ico'))
-        f = open('config.cfg', encoding='utf-8').readlines()
+        f = open(config, encoding='utf-8').readlines()
         picpath = f[0].replace('\n', '')
         os.chdir(picpath)
         self.port = int(f[1])
@@ -40,6 +45,10 @@ class ShowWindow(QMainWindow):
         self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
                         self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
         self.image.setPixmap(self.pixmap)
+        self.timer = QTimer()
+        self.timer.setInterval(self.interval)
+        self.timer.timeout.connect(self.changePicture)
+        self.timer.start()
 
     def takePayment(self, text):
         self.mode = 'p'
@@ -91,14 +100,14 @@ class ShowWindow(QMainWindow):
 class SettingsWindow(QMainWindow):
     def __init__(self):
         super(SettingsWindow, self).__init__()
-        uic.loadUi('SettingsWindow.ui', self)
+        uic.loadUi(settingsUI, self)
         self.fileButton.clicked.connect(self.choseFile)
         self.Monitor_spinBox.setMaximum(QDesktopWidget().screenCount())
         self.pushButton.clicked.connect(self.start)
         try:
-            file = open('config.cfg', encoding='utf-8')
+            file = open(config, encoding='utf-8')
             f = file.readlines()
-            if f != []:
+            if f:
                 try:
                     self.lineEdit.setText(f[0].replace('\n', ''))
                     self.Timing_spinBox.setValue(int(f[2]))
@@ -109,14 +118,14 @@ class SettingsWindow(QMainWindow):
                     pass
             file.close()
         except FileNotFoundError:
-            f = open('config.cfg', encoding='utf-8', mode='w')
+            f = open(config, encoding='utf-8', mode='w')
             f.close()
 
     def start(self):
         data = [self.lineEdit.text(), self.Port_spinBox.value(), self.Timing_spinBox.value(),
                 self.Monitor_spinBox.value(), self.Font_spinBox.value()]
         if all(data):
-            f = open('config.cfg', encoding='utf-8', mode='w')
+            f = open(config, encoding='utf-8', mode='w')
             f.writelines(map(lambda x: str(x) + '\n', data))
             f.close()
             start_main()
@@ -131,17 +140,29 @@ class SettingsWindow(QMainWindow):
 
 def start_main():
     global main, admin_panel
+    admin_panel = AdminPanelWindow()
     main = ShowWindow()
+    main.show()
+    admin_panel.show()
 
 
 class AdminPanelWindow(QMainWindow):
     def __init__(self):
         super(AdminPanelWindow, self).__init__()
-        uic.loadUi('AdminPanel.ui', self)
+        uic.loadUi(admin_panelUI, self)
+        self.setWindowTitle('Окно администратора')
+        self.pushButton.clicked.connect(self.returnToSettings)
+
+    def returnToSettings(self):
+        global main, settings
+        main.close()
+        settings = SettingsWindow()
+        settings.show()
+        self.close()
 
 
 app = QApplication(sys.argv)
 
-admin_panel = AdminPanelWindow()
-admin_panel.show()
+settings = SettingsWindow()
+settings.show()
 app.exec_()
