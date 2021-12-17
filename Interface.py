@@ -8,6 +8,7 @@ from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
 from PyQt5.QtCore import QTimer, Qt
 
 main = ''
+admin_panel = ''
 
 
 class ShowWindow(QMainWindow):
@@ -112,11 +113,11 @@ class SettingsWindow(QMainWindow):
             f.close()
 
     def start(self):
-        self.data = [self.lineEdit.text(), self.Port_spinBox.value(), self.Timing_spinBox.value(),
-                     self.Monitor_spinBox.value(), self.Font_spinBox.value()]
-        if all(self.data):
+        data = [self.lineEdit.text(), self.Port_spinBox.value(), self.Timing_spinBox.value(),
+                self.Monitor_spinBox.value(), self.Font_spinBox.value()]
+        if all(data):
             f = open('config.cfg', encoding='utf-8', mode='w')
-            f.writelines(map(lambda x: str(x) + '\n', self.data))
+            f.writelines(map(lambda x: str(x) + '\n', data))
             f.close()
             start_main()
             self.close()
@@ -129,12 +130,18 @@ class SettingsWindow(QMainWindow):
 
 
 def start_main():
-    global main
+    global main, admin_panel
     main = ShowWindow()
+
+
+class AdminPanelWindow(QMainWindow):
+    def __init__(self):
+        super(AdminPanelWindow, self).__init__()
+        uic.loadUi('AdminPanel.ui', self)
 
 
 app = QApplication(sys.argv)
 
-settings = SettingsWindow()
-settings.show()
+admin_panel = AdminPanelWindow()
+admin_panel.show()
 app.exec_()

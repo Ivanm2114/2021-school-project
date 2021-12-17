@@ -9,7 +9,7 @@ import sys
 from flask import Flask, request, render_template, make_response, session
 from flask_restful import Api
 import qr_api
-from PyQt5.QtGui import QScreen, QPixmap, QFont,QIcon
+from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
 from PyQt5.QtCore import QTimer
 
 
