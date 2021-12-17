@@ -4,11 +4,11 @@ from PIL import Image
 from PyQt5 import uic, QtWidgets
 from PIL.ImageQt import ImageQt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog
-from PyQt5.QtGui import QScreen, QPixmap, QFont,QIcon
+from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
 from PyQt5.QtCore import QTimer, Qt
 
-
 main = ''
+
 
 class ShowWindow(QMainWindow):
     def __init__(self):
@@ -39,7 +39,6 @@ class ShowWindow(QMainWindow):
         self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
                         self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
         self.image.setPixmap(self.pixmap)
-
 
     def takePayment(self, text):
         self.mode = 'p'
@@ -88,7 +87,6 @@ class ShowWindow(QMainWindow):
         self.changePicture()
 
 
-
 class SettingsWindow(QMainWindow):
     def __init__(self):
         super(SettingsWindow, self).__init__()
@@ -126,16 +124,13 @@ class SettingsWindow(QMainWindow):
             self.label_6.setText('Заполните все поля.')
 
     def choseFile(self):
-        fname = QFileDialog.getExistingDirectory(self,"Выбрать папку",".")
+        fname = QFileDialog.getExistingDirectory(self, "Выбрать папку", ".")
         self.lineEdit.setText(fname)
-
 
 
 def start_main():
     global main
     main = ShowWindow()
-    main.show()
-
 
 
 app = QApplication(sys.argv)
@@ -143,4 +138,3 @@ app = QApplication(sys.argv)
 settings = SettingsWindow()
 settings.show()
 app.exec_()
-
