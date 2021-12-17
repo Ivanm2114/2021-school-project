@@ -1,25 +1,47 @@
 import sys
 import os
-from PIL import Image
+import datetime
+from threading import Thread
+
 from PyQt5 import uic, QtWidgets
 from PIL.ImageQt import ImageQt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog
 from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
 from PyQt5.QtCore import QTimer, Qt
+from flask import Flask
+from flask_restful import Api
 
 settingsUI = os.path.abspath('SettingsWindow.ui')
 admin_panelUI = os.path.abspath('AdminPanel.ui')
 config = os.path.abspath('config.cfg')
+icon = os.path.abspath('monitor.ico')
 
 main = ''
 admin_panel = ''
 settings = ''
+flaskThread = ''
+
+
+def startFlaskThread():
+    import qr_api
+    global flaskThread, main
+    web_app = Flask(__name__)
+
+    api = Api(web_app)
+    web_app.config['SECRET_KEY'] = 'Econica'
+    web_app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
+        days=365)
+    web_app.register_blueprint(qr_api.blueprint)
+
+    kwargs = {'port': main.port, 'host': '127.0.0.1'}
+
+    flaskThread = Thread(target=web_app.run, daemon=True, kwargs=kwargs).start()
 
 
 class ShowWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowIcon(QIcon('monitor.ico'))
+        self.setWindowIcon(QIcon(icon))
         f = open(config, encoding='utf-8').readlines()
         picpath = f[0].replace('\n', '')
         os.chdir(picpath)
@@ -142,6 +164,7 @@ def start_main():
     global main, admin_panel
     admin_panel = AdminPanelWindow()
     main = ShowWindow()
+    startFlaskThread()
     main.show()
     admin_panel.show()
 
@@ -152,6 +175,7 @@ class AdminPanelWindow(QMainWindow):
         uic.loadUi(admin_panelUI, self)
         self.setWindowTitle('Окно администратора')
         self.pushButton.clicked.connect(self.returnToSettings)
+        self.closeButton.clicked.connect(self.closeAll)
 
     def returnToSettings(self):
         global main, settings
@@ -160,9 +184,10 @@ class AdminPanelWindow(QMainWindow):
         settings.show()
         self.close()
 
+    def closeAll(self):
+        sys.exit(0)
+
 
 app = QApplication(sys.argv)
-
 settings = SettingsWindow()
 settings.show()
-app.exec_()
