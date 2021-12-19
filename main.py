@@ -7,10 +7,4 @@ from flask_restful import Api
 
 flaskThread = ''
 
-
-
-
-if 'picture.png' in os.listdir():
-    os.remove('picture.png')
-
 app.exec_()

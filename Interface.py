@@ -45,12 +45,16 @@ class ShowWindow(QMainWindow):
         f = open(config, encoding='utf-8').readlines()
         picpath = f[0].replace('\n', '')
         os.chdir(picpath)
+        if 'picture.png' in os.listdir():
+            os.remove('picture.png')
         self.port = int(f[1])
         self.font = QFont()
-        self.mode = 's'
+        self.mode = 'standBy'
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
         self.pictures = os.listdir()
+        self.setMaximumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(), QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
+        self.setMinimumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(), QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
         self.setGeometry(QDesktopWidget().screenGeometry(int(f[3]) - 1))
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
@@ -73,27 +77,31 @@ class ShowWindow(QMainWindow):
         self.timer.start()
 
     def takePayment(self, text):
-        self.mode = 'p'
+        global admin_panel
+        self.mode = 'takePayment'
         self.label.setText(text)
         self.label.adjustSize()
         if self.showQR():
             self.label.move(self.screen().size().width() // 2 - self.label.width() // 2, 5)
+            admin_panel.changeText('Демонстарция QR кода')
         else:
             self.label.move(self.screen().size().width() // 2 - self.label.width() // 2,
                             self.screen().size().height() // 2)
+            admin_panel.changeText('Демонстарция сообщения')
             self.image.setVisible(False)
 
     def changePicture(self):
-        self.count = (self.count + 1) % len(self.pictures)
-        self.current = self.pictures[self.count]
-        self.a = ImageQt(self.current)
-        self.pixmap = QPixmap.fromImage(self.a)
-        self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
-                                         Qt.KeepAspectRatio)
-        self.image.resize(self.pixmap.size())
-        self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
-                        self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
-        self.image.setPixmap(self.pixmap)
+        if self.mode == 'standBy':
+            self.count = (self.count + 1) % len(self.pictures)
+            self.current = self.pictures[self.count]
+            self.a = ImageQt(self.current)
+            self.pixmap = QPixmap.fromImage(self.a)
+            self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
+                                             Qt.KeepAspectRatio)
+            self.image.resize(self.pixmap.size())
+            self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
+                            self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
+            self.image.setPixmap(self.pixmap)
 
     def showQR(self):
         if 'picture.png' in os.listdir():
@@ -112,7 +120,8 @@ class ShowWindow(QMainWindow):
 
     def standbyMode(self):
         self.image.setVisible(True)
-        self.mode = 's'
+        self.mode = 'standBy'
+        admin_panel.changeText('Ожидание запроса')
         if 'picture.png' in os.listdir():
             os.remove('picture.png')
         self.label.setText('')
@@ -176,6 +185,7 @@ class AdminPanelWindow(QMainWindow):
         self.setWindowTitle('Окно администратора')
         self.pushButton.clicked.connect(self.returnToSettings)
         self.closeButton.clicked.connect(self.closeAll)
+        self.changeText('Ожидание запроса')
 
     def returnToSettings(self):
         global main, settings
@@ -186,6 +196,9 @@ class AdminPanelWindow(QMainWindow):
 
     def closeAll(self):
         sys.exit(0)
+
+    def changeText(self, text):
+        self.label_2.setText(text)
 
 
 app = QApplication(sys.argv)
