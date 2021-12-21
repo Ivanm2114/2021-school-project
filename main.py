@@ -1,4 +1,4 @@
-from Interface import app, main
+from Interface import app
 import os
 import datetime
 from threading import Thread

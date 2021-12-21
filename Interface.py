@@ -3,7 +3,7 @@ import os
 import datetime
 from threading import Thread
 
-from PyQt5 import uic, QtWidgets
+from PyQt5 import uic, QtWidgets,QtCore
 from PIL.ImageQt import ImageQt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog
 from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
@@ -20,6 +20,7 @@ main = ''
 admin_panel = ''
 settings = ''
 flaskThread = ''
+is_running = False
 
 
 def startFlaskThread():
@@ -42,6 +43,7 @@ class ShowWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon(icon))
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         f = open(config, encoding='utf-8').readlines()
         picpath = f[0].replace('\n', '')
         os.chdir(picpath)
@@ -53,8 +55,10 @@ class ShowWindow(QMainWindow):
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
         self.pictures = os.listdir()
-        self.setMaximumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(), QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
-        self.setMinimumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(), QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
+        self.setMaximumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
+                            QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
+        self.setMinimumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
+                            QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
         self.setGeometry(QDesktopWidget().screenGeometry(int(f[3]) - 1))
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
@@ -76,12 +80,14 @@ class ShowWindow(QMainWindow):
         self.timer.timeout.connect(self.changePicture)
         self.timer.start()
 
-    def takePayment(self, text):
+    def takePayment(self, text=None):
         global admin_panel
         self.mode = 'takePayment'
         self.label.setText(text)
         self.label.adjustSize()
-        if self.showQR():
+        with_text=(text != None)
+        if self.showQR(with_text):
+            self.image.setVisible(True)
             self.label.move(self.screen().size().width() // 2 - self.label.width() // 2, 5)
             admin_panel.changeText('Демонстарция QR кода')
         else:
@@ -103,18 +109,27 @@ class ShowWindow(QMainWindow):
                             self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
             self.image.setPixmap(self.pixmap)
 
-    def showQR(self):
+    def showQR(self, with_text):
         if 'picture.png' in os.listdir():
             self.current = 'picture.png'
             self.a = ImageQt(self.current)
             self.pixmap = QPixmap.fromImage(self.a)
-            self.pixmap = self.pixmap.scaled(self.screen().size().height() - self.label.rect().height() - 10,
-                                             self.screen().size().height() - self.label.rect().height() - 10,
-                                             Qt.KeepAspectRatio)
-            self.image.resize(self.pixmap.size())
-            self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
-                            self.label.height() + 10)
-            self.image.setPixmap(self.pixmap)
+            if with_text:
+                self.pixmap = self.pixmap.scaled(self.screen().size().height() - self.label.rect().height() - 10,
+                                                 self.screen().size().height() - self.label.rect().height() - 10,
+                                                 Qt.KeepAspectRatio)
+                self.image.resize(self.pixmap.size())
+                self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
+                                self.label.height() + 10)
+                self.image.setPixmap(self.pixmap)
+            else:
+                self.pixmap = self.pixmap.scaled(self.screen().size().height() - 10,
+                                                 self.screen().size().height() - 10,
+                                                 Qt.KeepAspectRatio)
+                self.image.resize(self.pixmap.size())
+                self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
+                                 0)
+                self.image.setPixmap(self.pixmap)
             return True
         return False
 
@@ -138,44 +153,61 @@ class SettingsWindow(QMainWindow):
         try:
             file = open(config, encoding='utf-8')
             f = file.readlines()
-            if f:
-                try:
-                    self.lineEdit.setText(f[0].replace('\n', ''))
-                    self.Timing_spinBox.setValue(int(f[2]))
-                    self.Monitor_spinBox.setValue(int(f[3]))
-                    self.Port_spinBox.setValue(int(f[1]))
-                    self.Font_spinBox.setValue(int(f[4]))
-                except IndexError:
-                    pass
-            file.close()
+            for i in range(len(f)):
+                f[i] = f[i].replace('\n', '')
+                if f[i].isdigit():
+                    f[i] = int(f[i])
+            if f != [] and not is_running:
+                file.close()
+                self.start(True)
+            elif f != [] and is_running:
+                self.Monitor_spinBox.setValue(f[3])
+                self.lineEdit.setText(f[0])
+                self.Port_spinBox.setValue(f[1])
+                self.Timing_spinBox.setValue(f[2])
+                self.Font_spinBox.setValue(f[4])
+
         except FileNotFoundError:
             f = open(config, encoding='utf-8', mode='w')
             f.close()
+            self.show()
 
-    def start(self):
-        data = [self.lineEdit.text(), self.Port_spinBox.value(), self.Timing_spinBox.value(),
-                self.Monitor_spinBox.value(), self.Font_spinBox.value()]
+    def start(self, file_is_ready=False):
+        global is_running
+        if not file_is_ready:
+            data = [self.lineEdit.text(), self.Port_spinBox.value(), self.Timing_spinBox.value(),
+                    self.Monitor_spinBox.value(), self.Font_spinBox.value()]
+        else:
+            file = open(config, encoding='utf-8')
+            f = file.readlines()
+            for i in range(len(f)):
+                f[i] = f[i].replace('\n', '')
+                if f[i].isdigit():
+                    f[i] = int(f[i])
+            data = f
         if all(data):
             f = open(config, encoding='utf-8', mode='w')
             f.writelines(map(lambda x: str(x) + '\n', data))
             f.close()
-            start_main()
+            is_running = True
+            self.start_main()
             self.close()
-        else:
+        elif not file_is_ready:
             self.label_6.setText('Заполните все поля.')
+        else:
+            self.label_6.setText('С файлом произошла ошибка. Заполните поля снова.')
 
     def choseFile(self):
         fname = QFileDialog.getExistingDirectory(self, "Выбрать папку", ".")
         self.lineEdit.setText(fname)
 
-
-def start_main():
-    global main, admin_panel
-    admin_panel = AdminPanelWindow()
-    main = ShowWindow()
-    startFlaskThread()
-    main.show()
-    admin_panel.show()
+    def start_main(self):
+        global main, admin_panel
+        admin_panel = AdminPanelWindow()
+        main = ShowWindow()
+        startFlaskThread()
+        main.show()
+        admin_panel.show()
 
 
 class AdminPanelWindow(QMainWindow):
@@ -190,11 +222,14 @@ class AdminPanelWindow(QMainWindow):
     def returnToSettings(self):
         global main, settings
         main.close()
+        del main
         settings = SettingsWindow()
         settings.show()
         self.close()
 
     def closeAll(self):
+        if 'picture.png' in os.listdir():
+            os.remove('picture.png')
         sys.exit(0)
 
     def changeText(self, text):
@@ -203,4 +238,3 @@ class AdminPanelWindow(QMainWindow):
 
 app = QApplication(sys.argv)
 settings = SettingsWindow()
-settings.show()

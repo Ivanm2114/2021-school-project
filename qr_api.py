@@ -20,17 +20,31 @@ def StandbyMode(object):
 
 @blueprint.route('/', methods=['POST'])
 def generate_qr():
-    if request.json['ShowMessage']:
-        if 'picture.png' in os.listdir():
-            os.remove('picture.png')
-        try:
-            if request.json['QR']:
+    from Interface import main
+    if 'ShowMessage' in request.json:
+        if request.json['ShowMessage']:
+            if 'picture.png' in os.listdir():
+                os.remove('picture.png')
+            if 'QR' in request.json:
                 create_qr(request.json['QR'])
-            main.takePayment(request.json['TextMessage'])
-            return jsonify({'success': 'QR created, showing window'})
-        except KeyError:
-            main.takePayment(request.json['TextMessage'])
-            return jsonify({'success': 'Showing message'})
-    else:
-        main.standbyMode()
+                if 'TextMessage' in request.json:
+                    if request.json['TextMessage'] != '':
+                        main.takePayment(request.json['TextMessage'])
+                    else:
+                        main.takePayment()
+                else:
+                    main.takePayment()
+                return jsonify({'success': 'QR created, showing window'})
+            else:
+                if 'TextMessage' in request.json:
+                    if request.json['TextMessage'] != '':
+                        main.takePayment(request.json['TextMessage'])
+                        return jsonify({'success': 'Showing message'})
+                    return jsonify({'no info to show': 'send info'})
+                return jsonify({'no info to show': 'send info'})
+        else:
+            main.standbyMode()
         return jsonify({'success': 'Turning to wait mode'})
+    return jsonify({'empty request': 'try to put some right info into request'})
+
+
