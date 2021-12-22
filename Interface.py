@@ -53,7 +53,10 @@ class ShowWindow(QMainWindow):
         self.mode = 'standBy'
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
-        self.pictures = os.listdir()
+        self.pictures = []
+        for element in os.listdir():
+            if element[len(element)-3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
+                self.pictures.append(element)
         self.setMaximumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
                             QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
         self.setMinimumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
@@ -64,20 +67,28 @@ class ShowWindow(QMainWindow):
         self.label.setFont(self.font)
         self.count = 0
         self.label.move(200, 100)
-        self.current = self.pictures[0]
-        self.a = ImageQt(self.current)
-        self.image = QLabel(self)
-        self.pixmap = QPixmap.fromImage(self.a)
-        self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
-                                         Qt.KeepAspectRatio)
-        self.image.resize(self.pixmap.size())
-        self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
-                        self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
-        self.image.setPixmap(self.pixmap)
         self.timer = QTimer()
         self.timer.setInterval(self.interval)
         self.timer.timeout.connect(self.changePicture)
         self.timer.start()
+        if self.pictures:
+            self.current = self.pictures[0]
+            self.a = ImageQt(self.current)
+            self.image = QLabel(self)
+            self.pixmap = QPixmap.fromImage(self.a)
+            self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
+                                             Qt.KeepAspectRatio)
+            self.image.resize(self.pixmap.size())
+            self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
+                            self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
+            self.image.setPixmap(self.pixmap)
+        else:
+            self.error_no_pictures()
+
+
+    def error_no_pictures(self):
+        self.label.setText('В папке нет подходящих картинок.')
+        self.label.adjustSize()
 
     def takePayment(self, text=None):
         global admin_panel
