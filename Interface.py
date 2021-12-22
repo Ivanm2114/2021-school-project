@@ -11,11 +11,10 @@ from PyQt5.QtCore import QTimer, Qt
 from flask import Flask
 from flask_restful import Api
 
-settingsUI = os.path.abspath('SettingsWindow.ui')
-admin_panelUI = os.path.abspath('AdminPanel.ui')
+settingsUI = os.path.abspath('UI/SettingsWindow.ui')
+admin_panelUI = os.path.abspath('UI/AdminPanel.ui')
 config = os.path.abspath('config.cfg')
-icon = os.path.abspath('monitor.ico')
-
+icon = os.path.abspath('IMGs/monitor.ico')
 main = ''
 admin_panel = ''
 settings = ''
