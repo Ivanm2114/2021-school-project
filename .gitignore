@@ -1,3 +1,9 @@
 # created by virtualenv automatically
 pythonProjectQR.zip
 config.cfg
+/share/
+/Lib/
+/Scripts/
+/exes/
+/dist/
+/build/
