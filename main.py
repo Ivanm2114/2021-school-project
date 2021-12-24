@@ -1,6 +1,6 @@
 from Interface import app
+import sys
 
 
 flaskThread = ''
-
-app.exec_()
+sys.exit(app.exec_())

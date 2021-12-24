@@ -55,7 +55,7 @@ class ShowWindow(QMainWindow):
         self.font.setPointSize(int(f[4]))
         self.pictures = []
         for element in os.listdir():
-            if element[len(element)-3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
+            if element[len(element) - 3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
                 self.pictures.append(element)
         self.setMaximumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
                             QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
@@ -85,7 +85,6 @@ class ShowWindow(QMainWindow):
         else:
             self.error_no_pictures()
 
-
     def error_no_pictures(self):
         self.label.setText('В папке нет подходящих картинок.')
         self.label.adjustSize()
@@ -93,11 +92,14 @@ class ShowWindow(QMainWindow):
     def takePayment(self, text=None):
         global admin_panel
         self.mode = 'takePayment'
-        self.label.setText(text)
-        self.label.adjustSize()
-        with_text=(text != None)
+        with_text = (text is not None)
+        if with_text:
+            self.label.setText(text)
+            self.label.adjustSize()
+        else:
+            self.label.setText('')
         if self.showQR(with_text):
-            self.image.setVisible(True)
+
             self.label.move(self.screen().size().width() // 2 - self.label.width() // 2, 5)
             admin_panel.changeText('Демонстарция QR кода')
         else:
@@ -138,19 +140,17 @@ class ShowWindow(QMainWindow):
                                                  Qt.KeepAspectRatio)
                 self.image.resize(self.pixmap.size())
                 self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
-                                 0)
+                                0)
                 self.image.setPixmap(self.pixmap)
             return True
         return False
 
     def standbyMode(self):
-        self.image.setVisible(True)
         self.mode = 'standBy'
         admin_panel.changeText('Ожидание запроса')
         if 'picture.png' in os.listdir():
             os.remove('picture.png')
         self.label.setText('')
-        self.changePicture()
 
 
 class SettingsWindow(QMainWindow):
