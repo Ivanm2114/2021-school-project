@@ -3,10 +3,10 @@ import os
 import datetime
 from threading import Thread
 
-from PyQt5 import uic, QtWidgets,QtCore
+from PyQt5 import uic, QtCore
 from PIL.ImageQt import ImageQt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog
-from PyQt5.QtGui import QScreen, QPixmap, QFont, QIcon
+from PyQt5.QtGui import QPixmap, QFont, QIcon
 from PyQt5.QtCore import QTimer, Qt
 from flask import Flask
 from flask_restful import Api

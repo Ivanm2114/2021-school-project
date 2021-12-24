@@ -1,5 +1,4 @@
 import flask
-from Interface import main
 from flask import jsonify, request
 from utils import create_qr
 import os
