@@ -109,6 +109,7 @@ class ShowWindow(QMainWindow):
 
     def changePicture(self):
         if self.mode == 'standBy':
+            self.image.setVisible(True)
             self.count = (self.count + 1) % len(self.pictures)
             self.current = self.pictures[self.count]
             self.a = ImageQt(self.current)
