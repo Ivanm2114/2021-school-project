@@ -15,9 +15,7 @@ settingsUI = os.path.abspath('UI/SettingsWindow.ui')
 admin_panelUI = os.path.abspath('UI/AdminPanel.ui')
 config = os.path.abspath('config.cfg')
 icon = os.path.abspath('IMGs/monitor.ico')
-main = ''
-admin_panel = ''
-settings = ''
+
 flaskThread = ''
 is_running = False
 
@@ -99,9 +97,10 @@ class ShowWindow(QMainWindow):
         else:
             self.label.setText('')
         if self.showQR(with_text):
-
-            self.label.move(self.screen().size().width() // 2 - self.label.width() // 2, 5)
+            a = self.screen().size().width() // 2 - self.label.width() // 2
+            self.label.move(a, 5)
             admin_panel.changeText('Демонстарция QR кода')
+            self.image.setVisible(True)
         else:
             self.label.move(self.screen().size().width() // 2 - self.label.width() // 2,
                             self.screen().size().height() // 2)
@@ -146,11 +145,13 @@ class ShowWindow(QMainWindow):
         return False
 
     def standbyMode(self):
-        self.mode = 'standBy'
-        admin_panel.changeText('Ожидание запроса')
-        if 'picture.png' in os.listdir():
-            os.remove('picture.png')
-        self.label.setText('')
+        if self.mode == 'takePayment':
+            self.mode = 'standBy'
+            admin_panel.changeText('Ожидание запроса')
+            self.label.setText('')
+            self.changePicture()
+            if 'picture.png' in os.listdir():
+                os.remove('picture.png')
 
 
 class SettingsWindow(QMainWindow):
