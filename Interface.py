@@ -52,6 +52,7 @@ class ShowWindow(QMainWindow):
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
         self.pictures = []
+        self.move(0, 0)
         for element in os.listdir():
             if element[len(element) - 3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
                 self.pictures.append(element)
