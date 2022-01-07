@@ -52,15 +52,15 @@ class ShowWindow(QMainWindow):
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
         self.pictures = []
-        self.move(0, 0)
+        self.screen_number = int(f[3]) - 1
         for element in os.listdir():
             if element[len(element) - 3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
                 self.pictures.append(element)
-        self.setMaximumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
-                            QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
-        self.setMinimumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
-                            QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
-        self.move(0,0)
+        self.setMaximumSize(QDesktopWidget().availableGeometry(self.screen_number).width(),
+                            QDesktopWidget().availableGeometry(self.screen_number).height())
+        self.setMinimumSize(QDesktopWidget().availableGeometry(self.screen_number).width(),
+                            QDesktopWidget().availableGeometry(self.screen_number).height())
+        self.move(QDesktopWidget().screenGeometry(self.screen_number).x(), QDesktopWidget().screenGeometry(self.screen_number).y())
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
         self.label.setFont(self.font)
