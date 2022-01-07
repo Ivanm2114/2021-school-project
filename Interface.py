@@ -15,7 +15,7 @@ settingsUI = os.path.abspath('UI/SettingsWindow.ui')
 admin_panelUI = os.path.abspath('UI/AdminPanel.ui')
 config = os.path.abspath('config.cfg')
 icon = os.path.abspath('IMGs/monitor.ico')
-
+main=''
 flaskThread = ''
 is_running = False
 
@@ -59,13 +59,15 @@ class ShowWindow(QMainWindow):
                             QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
         self.setMinimumSize(QDesktopWidget().availableGeometry(int(f[3]) - 1).width(),
                             QDesktopWidget().availableGeometry(int(f[3]) - 1).height())
-        self.setGeometry(QDesktopWidget().screenGeometry(int(f[3]) - 1))
+        self.move(0,0)
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
         self.label.setFont(self.font)
         self.count = 0
         self.label.move(200, 100)
         self.timer = QTimer()
+        self.w = self.screen().size().width()
+        self.h = self.screen().size().height()
         self.timer.setInterval(self.interval)
         self.timer.timeout.connect(self.changePicture)
         self.timer.start()
@@ -77,8 +79,8 @@ class ShowWindow(QMainWindow):
             self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
                                              Qt.KeepAspectRatio)
             self.image.resize(self.pixmap.size())
-            self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
-                            self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
+            self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
+                            self.h // 2 - self.pixmap.size().height() // 2)
             self.image.setPixmap(self.pixmap)
         else:
             self.error_no_pictures()
@@ -97,13 +99,15 @@ class ShowWindow(QMainWindow):
         else:
             self.label.setText('')
         if self.showQR(with_text):
-            a = self.screen().size().width() // 2 - self.label.width() // 2
+            print(self.screen())
+            a = (self.w // 2 - self.label.width() // 2)
+            print(a)
             self.label.move(a, 5)
             admin_panel.changeText('Демонстарция QR кода')
             self.image.setVisible(True)
         else:
-            self.label.move(self.screen().size().width() // 2 - self.label.width() // 2,
-                            self.screen().size().height() // 2)
+            self.label.move(self.w // 2 - self.label.width() // 2,
+                            self.h // 2)
             admin_panel.changeText('Демонстарция сообщения')
             self.image.setVisible(False)
 
@@ -117,8 +121,8 @@ class ShowWindow(QMainWindow):
             self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
                                              Qt.KeepAspectRatio)
             self.image.resize(self.pixmap.size())
-            self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
-                            self.screen().size().height() // 2 - self.pixmap.size().height() // 2)
+            self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
+                            self.h // 2 - self.pixmap.size().height() // 2)
             self.image.setPixmap(self.pixmap)
 
     def showQR(self, with_text):
@@ -127,11 +131,11 @@ class ShowWindow(QMainWindow):
             self.a = ImageQt(self.current)
             self.pixmap = QPixmap.fromImage(self.a)
             if with_text:
-                self.pixmap = self.pixmap.scaled(self.screen().size().height() - self.label.rect().height() - 10,
-                                                 self.screen().size().height() - self.label.rect().height() - 10,
+                self.pixmap = self.pixmap.scaled(self.h - self.label.rect().height() - 10,
+                                                 self.h - self.label.rect().height() - 10,
                                                  Qt.KeepAspectRatio)
                 self.image.resize(self.pixmap.size())
-                self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
+                self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
                                 self.label.height() + 10)
                 self.image.setPixmap(self.pixmap)
             else:
@@ -139,7 +143,7 @@ class ShowWindow(QMainWindow):
                                                  self.screen().size().height() - 10,
                                                  Qt.KeepAspectRatio)
                 self.image.resize(self.pixmap.size())
-                self.image.move(self.screen().size().width() // 2 - self.pixmap.size().width() // 2,
+                self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
                                 0)
                 self.image.setPixmap(self.pixmap)
             return True

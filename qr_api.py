@@ -33,17 +33,17 @@ def generate_qr():
                         main.takePayment()
                 else:
                     main.takePayment()
-                return jsonify({'success': 'QR created, showing window'})
+                return 'showing QR'
             else:
                 if 'TextMessage' in request.json:
                     if request.json['TextMessage'] != '':
                         main.takePayment(request.json['TextMessage'])
-                        return jsonify({'success': 'Showing message'})
-                    return jsonify({'no info to show': 'send info'})
-                return jsonify({'no info to show': 'send info'})
+                        return 'Showing message'
+                    return 'send info'
+                return 'send info'
         else:
             main.standbyMode()
-        return jsonify({'success': 'Turning to wait mode'})
-    return jsonify({'empty request': 'try to put some right info into request'})
+        return 'Turning to wait mode'
+    return 'try to put some right info into request'
 
 
