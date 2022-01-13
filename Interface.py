@@ -100,9 +100,7 @@ class ShowWindow(QMainWindow):
         else:
             self.label.setText('')
         if self.showQR(with_text):
-            print(self.screen())
             a = (self.w // 2 - self.label.width() // 2)
-            print(a)
             self.label.move(a, 5)
             admin_panel.changeText('Демонстарция QR кода')
             self.image.setVisible(True)
