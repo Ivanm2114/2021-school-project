@@ -1,5 +1,8 @@
+import datetime
 import flask
-from flask import request
+from flask import request, Flask
+from flask_restful import Api
+
 from utils import create_qr
 import os
 
@@ -8,13 +11,6 @@ blueprint = flask.Blueprint(
     __name__
 )
 
-
-def QRMode(object, text):
-    object.takePayment(text)
-
-
-def StandbyMode(object):
-    object.standbyMode()
 
 
 @blueprint.route('/', methods=['POST'])
@@ -47,3 +43,12 @@ def generate_qr():
     return 'try to put some right info into request'
 
 
+web_app = Flask(__name__)
+
+api = Api(web_app)
+web_app.config['SECRET_KEY'] = 'Econica'
+web_app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
+    days=365)
+web_app.register_blueprint(blueprint)
+kwargs = {'port': 5001, 'host': '127.0.0.1'}
+web_app.run(debug=True, port=5001)

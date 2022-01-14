@@ -15,7 +15,7 @@ settingsUI = os.path.abspath('UI/SettingsWindow.ui')
 admin_panelUI = os.path.abspath('UI/AdminPanel.ui')
 config = os.path.abspath('config.cfg')
 icon = os.path.abspath('IMGs/monitor.ico')
-main=''
+main = ''
 flaskThread = ''
 is_running = False
 
@@ -30,7 +30,6 @@ def startFlaskThread():
     web_app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(
         days=365)
     web_app.register_blueprint(qr_api.blueprint)
-
     kwargs = {'port': main.port, 'host': '127.0.0.1'}
 
     flaskThread = Thread(target=web_app.run, daemon=True, kwargs=kwargs).start()
@@ -60,7 +59,8 @@ class ShowWindow(QMainWindow):
                             QDesktopWidget().availableGeometry(self.screen_number).height())
         self.setMinimumSize(QDesktopWidget().availableGeometry(self.screen_number).width(),
                             QDesktopWidget().availableGeometry(self.screen_number).height())
-        self.move(QDesktopWidget().screenGeometry(self.screen_number).x(), QDesktopWidget().screenGeometry(self.screen_number).y())
+        self.move(QDesktopWidget().screenGeometry(self.screen_number).x(),
+                  QDesktopWidget().screenGeometry(self.screen_number).y())
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
         self.label.setFont(self.font)
@@ -220,7 +220,7 @@ class SettingsWindow(QMainWindow):
         global main, admin_panel
         admin_panel = AdminPanelWindow()
         main = ShowWindow()
-        startFlaskThread()
+        # startFlaskThread()
         main.show()
         admin_panel.show()
 
@@ -253,3 +253,4 @@ class AdminPanelWindow(QMainWindow):
 
 app = QApplication(sys.argv)
 settings = SettingsWindow()
+app.exec_()
