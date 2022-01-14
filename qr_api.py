@@ -1,5 +1,5 @@
 import flask
-from flask import jsonify, request
+from flask import request
 from utils import create_qr
 import os
 
