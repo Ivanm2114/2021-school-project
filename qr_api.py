@@ -1,25 +1,24 @@
 import flask
-from flask import request
+from flask import request, jsonify
 from utils import create_qr
 import os
-
+from Interface import showfile
 blueprint = flask.Blueprint(
     'users_api',
     __name__
 )
 
 
-def QRMode(object, text):
-    object.takePayment(text)
-
-
-def StandbyMode(object):
-    object.standbyMode()
+def edit_file(show, text=''):
+    file = open(showfile, mode='w')
+    file.write(str(show) + '\n' + f'{text}')
+    file.close()
 
 
 @blueprint.route('/', methods=['POST'])
 def generate_qr():
     from Interface import main
+    print("=============")
     if 'ShowMessage' in request.json:
         if request.json['ShowMessage']:
             if 'picture.png' in os.listdir():
@@ -28,22 +27,20 @@ def generate_qr():
                 create_qr(request.json['QR'])
                 if 'TextMessage' in request.json:
                     if request.json['TextMessage'] != '':
-                        main.takePayment(request.json['TextMessage'])
+                        edit_file(True, request.json['TextMessage'])
                     else:
-                        main.takePayment()
+                        edit_file(True)
                 else:
-                    main.takePayment()
-                return 'showing QR'
+                    edit_file(True)
+                return jsonify({'success': 'Showing QR'})
             else:
                 if 'TextMessage' in request.json:
                     if request.json['TextMessage'] != '':
-                        main.takePayment(request.json['TextMessage'])
-                        return 'Showing message'
-                    return 'send info'
-                return 'send info'
+                        edit_file(True, request.json['TextMessage'])
+                        return jsonify({'success': 'Showing message'})
+                    return jsonify({'error': 'send info'})
+                return jsonify({'error': 'send info'})
         else:
-            main.standbyMode()
-        return 'Turning to wait mode'
-    return 'try to put some right info into request'
-
-
+            edit_file(False)
+        return jsonify({'success': 'turning to wait mode'})
+    return jsonify({'mistake': 'try to put some right info into request'})

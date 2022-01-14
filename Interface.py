@@ -14,10 +14,14 @@ from flask_restful import Api
 settingsUI = os.path.abspath('UI/SettingsWindow.ui')
 admin_panelUI = os.path.abspath('UI/AdminPanel.ui')
 config = os.path.abspath('config.cfg')
+showfile = os.path.abspath('show.txt')
 icon = os.path.abspath('IMGs/monitor.ico')
-main=''
+main = ''
 flaskThread = ''
 is_running = False
+file = open(showfile, mode='w')
+file.write(str(False))
+file.close()
 
 
 def startFlaskThread():
@@ -60,13 +64,18 @@ class ShowWindow(QMainWindow):
                             QDesktopWidget().availableGeometry(self.screen_number).height())
         self.setMinimumSize(QDesktopWidget().availableGeometry(self.screen_number).width(),
                             QDesktopWidget().availableGeometry(self.screen_number).height())
-        self.move(QDesktopWidget().screenGeometry(self.screen_number).x(), QDesktopWidget().screenGeometry(self.screen_number).y())
+        self.move(QDesktopWidget().screenGeometry(self.screen_number).x(),
+                  QDesktopWidget().screenGeometry(self.screen_number).y())
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
         self.label.setFont(self.font)
         self.count = 0
         self.label.move(200, 100)
         self.timer = QTimer()
+        self.check = QTimer()
+        self.check.timeout.connect(self.checkFile)
+        self.check.setInterval(500)
+        self.check.start()
         self.w = self.screen().size().width()
         self.h = self.screen().size().height()
         self.timer.setInterval(self.interval)
@@ -90,25 +99,39 @@ class ShowWindow(QMainWindow):
         self.label.setText('В папке нет подходящих картинок.')
         self.label.adjustSize()
 
-    def takePayment(self, text=None):
+    def checkFile(self):
+        f = open(showfile)
+        if f.readline().strip() == 'True':
+            self.takePayment(f.readline().strip())
+        else:
+            self.standbyMode()
+
+    def takePayment(self, text=''):
         global admin_panel
         self.mode = 'takePayment'
-        with_text = (text is not None)
+        print(text)
+        print(type(text))
+        with_text = (text != '')
+        print('1')
         if with_text:
             self.label.setText(text)
             self.label.adjustSize()
         else:
             self.label.setText('')
+        print('2')
         if self.showQR(with_text):
+            print('3')
             a = (self.w // 2 - self.label.width() // 2)
             self.label.move(a, 5)
             admin_panel.changeText('Демонстарция QR кода')
             self.image.setVisible(True)
         else:
+            print('4')
             self.label.move(self.w // 2 - self.label.width() // 2,
                             self.h // 2)
             admin_panel.changeText('Демонстарция сообщения')
             self.image.setVisible(False)
+        print('5')
 
     def changePicture(self):
         if self.mode == 'standBy':
@@ -145,7 +168,10 @@ class ShowWindow(QMainWindow):
                 self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
                                 0)
                 self.image.setPixmap(self.pixmap)
+                print("qr")
+            print("qe3")
             return True
+        print("qr2")
         return False
 
     def standbyMode(self):
@@ -173,7 +199,6 @@ class SettingsWindow(QMainWindow):
                 if f[i].isdigit():
                     f[i] = int(f[i])
             if f != [] and not is_running:
-                file.close()
                 self.start(True)
             elif f != [] and is_running:
                 self.Monitor_spinBox.setValue(f[3])
@@ -181,7 +206,7 @@ class SettingsWindow(QMainWindow):
                 self.Port_spinBox.setValue(f[1])
                 self.Timing_spinBox.setValue(f[2])
                 self.Font_spinBox.setValue(f[4])
-
+            file.close()
         except FileNotFoundError:
             f = open(config, encoding='utf-8', mode='w')
             f.close()
@@ -200,6 +225,7 @@ class SettingsWindow(QMainWindow):
                 if f[i].isdigit():
                     f[i] = int(f[i])
             data = f
+            file.close()
         if all(data):
             f = open(config, encoding='utf-8', mode='w')
             f.writelines(map(lambda x: str(x) + '\n', data))
