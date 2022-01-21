@@ -60,12 +60,10 @@ class ShowWindow(QMainWindow):
         for element in os.listdir():
             if element[len(element) - 3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
                 self.pictures.append(element)
-        self.setMaximumSize(QDesktopWidget().availableGeometry(self.screen_number).width(),
-                            QDesktopWidget().availableGeometry(self.screen_number).height())
-        self.setMinimumSize(QDesktopWidget().availableGeometry(self.screen_number).width(),
-                            QDesktopWidget().availableGeometry(self.screen_number).height())
+
         self.move(QDesktopWidget().screenGeometry(self.screen_number).x(),
                   QDesktopWidget().screenGeometry(self.screen_number).y())
+        self.showFullScreen()
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
         self.label.setFont(self.font)
@@ -86,12 +84,13 @@ class ShowWindow(QMainWindow):
             self.a = ImageQt(self.current)
             self.image = QLabel(self)
             self.pixmap = QPixmap.fromImage(self.a)
-            self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
+            self.pixmap = self.pixmap.scaled(self.h, self.h,
                                              Qt.KeepAspectRatio)
             self.image.resize(self.pixmap.size())
             self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
                             self.h // 2 - self.pixmap.size().height() // 2)
             self.image.setPixmap(self.pixmap)
+            self.image.setVisible(True)
         else:
             self.error_no_pictures()
 
@@ -140,7 +139,7 @@ class ShowWindow(QMainWindow):
             self.current = self.pictures[self.count]
             self.a = ImageQt(self.current)
             self.pixmap = QPixmap.fromImage(self.a)
-            self.pixmap = self.pixmap.scaled(self.screen().size().height(), self.screen().size().height(),
+            self.pixmap = self.pixmap.scaled(self.h, self.h,
                                              Qt.KeepAspectRatio)
             self.image.resize(self.pixmap.size())
             self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
