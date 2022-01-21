@@ -108,29 +108,22 @@ class ShowWindow(QMainWindow):
     def takePayment(self, text=''):
         global admin_panel
         self.mode = 'takePayment'
-        print(text)
-        print(type(text))
         with_text = (text != '')
-        print('1')
         if with_text:
+            self.label.setVisible(True)
             self.label.setText(text)
             self.label.adjustSize()
         else:
             self.label.setText('')
-        print('2')
         if self.showQR(with_text):
-            print('3')
-            a = (self.w // 2 - self.label.width() // 2)
-            self.label.move(a, 5)
+            self.label.move(self.w // 2 - self.label.width() // 2, 5)
             admin_panel.changeText('Демонстарция QR кода')
             self.image.setVisible(True)
         else:
-            print('4')
             self.label.move(self.w // 2 - self.label.width() // 2,
                             self.h // 2)
             admin_panel.changeText('Демонстарция сообщения')
             self.image.setVisible(False)
-        print('5')
 
     def changePicture(self):
         if self.mode == 'standBy':
@@ -167,10 +160,7 @@ class ShowWindow(QMainWindow):
                 self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
                                 0)
                 self.image.setPixmap(self.pixmap)
-                print("qr")
-            print("qe3")
             return True
-        print("qr2")
         return False
 
     def standbyMode(self):

@@ -18,7 +18,6 @@ def edit_file(show, text=''):
 @blueprint.route('/', methods=['POST'])
 def generate_qr():
     from Interface import main
-    print("=============")
     if 'ShowMessage' in request.json:
         if request.json['ShowMessage']:
             if 'picture.png' in os.listdir():

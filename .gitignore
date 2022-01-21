@@ -7,3 +7,4 @@ config.cfg
 /exes/
 /dist/
 /build/
+/show.txt
