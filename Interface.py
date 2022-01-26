@@ -19,9 +19,6 @@ icon = os.path.abspath('IMGs/monitor.ico')
 main = ''
 flaskThread = ''
 is_running = False
-file = open(showfile, mode='w')
-file.write(str(False))
-file.close()
 
 
 def startFlaskThread():
@@ -56,6 +53,9 @@ class ShowWindow(QMainWindow):
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
         self.pictures = []
+        file = open(showfile, mode='w')
+        file.write(str(False))
+        file.close()
         self.screen_number = int(f[3]) - 1
         for element in os.listdir():
             if element[len(element) - 3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
