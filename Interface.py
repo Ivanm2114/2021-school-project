@@ -49,6 +49,7 @@ class ShowWindow(QMainWindow):
             os.remove('picture.png')
         self.port = int(f[1])
         self.font = QFont()
+        self.showFullScreen()
         self.mode = 'standBy'
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
