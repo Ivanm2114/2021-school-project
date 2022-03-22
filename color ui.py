@@ -1,0 +1,1 @@
+self.setStyleSheet("background-color: rgb(100, 133, 202);")
