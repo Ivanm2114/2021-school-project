@@ -5,14 +5,15 @@ from threading import Thread
 
 from PyQt5 import uic, QtCore
 from PIL.ImageQt import ImageQt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog
-from PyQt5.QtGui import QPixmap, QFont, QIcon
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog, QColorDialog
+from PyQt5.QtGui import QPixmap, QFont, QIcon, QPainter, QColor
 from PyQt5.QtCore import QTimer, Qt
 from flask import Flask
 from flask_restful import Api
 
 settingsUI = os.path.abspath('UI/SettingsWindow.ui')
 admin_panelUI = os.path.abspath('UI/AdminPanel.ui')
+colors_config = os.path.abspath('UI/colors.cfg')
 config = os.path.abspath('config.cfg')
 showfile = os.path.abspath('show.txt')
 icon = os.path.abspath('IMGs/monitor.ico')
@@ -181,6 +182,21 @@ class SettingsWindow(QMainWindow):
         self.fileButton.clicked.connect(self.choseFile)
         self.Monitor_spinBox.setMaximum(QDesktopWidget().screenCount())
         self.pushButton.clicked.connect(self.start)
+        self.pushButton_2.clicked.connect(self.setBackColor)
+        self.pushButton_5.clicked.connect(self.setFontColor)
+        try:
+            file = open(colors_config, encoding='utf-8', mode='r')
+            f = file.readlines()
+            file.close()
+            if len(f) == 0:
+                file = open(colors_config, encoding='utf-8', mode='w')
+                file.write('4293980400\n4278190080')
+                file.close()
+        except FileNotFoundError:
+            file = open(colors_config, encoding='utf-8', mode='w')
+            file.write('4293980400\n4278190080')
+            file.close()
+        self.paintEvent(1)
         try:
             file = open(config, encoding='utf-8')
             f = file.readlines()
@@ -196,11 +212,50 @@ class SettingsWindow(QMainWindow):
                 self.Port_spinBox.setValue(f[1])
                 self.Timing_spinBox.setValue(f[2])
                 self.Font_spinBox.setValue(f[4])
+            else:
+                self.show()
             file.close()
         except FileNotFoundError:
             f = open(config, encoding='utf-8', mode='w')
             f.close()
             self.show()
+
+    def paintEvent(self, e):
+
+        qp = QPainter()
+        qp.begin(self)
+        self.drawRecs(qp)
+        qp.end()
+
+    def drawRecs(self, qp):
+        data = open(colors_config, encoding='utf-8').readlines()
+        qp.setBrush(QColor(int(data[0])))
+        qp.drawRect(150, 260, 75, 51)
+        qp.setBrush(QColor(int(data[1])))
+        qp.drawRect(450, 260, 75, 51)
+
+    def setBackColor(self):
+        color = QColorDialog.getColor()
+        data = open(colors_config, encoding='utf-8').readlines()
+        data[0] = str(color.rgba())
+        for n in range(2):
+            data[n] = data[n].replace('\n', '')
+        f = open(colors_config, encoding='utf-8', mode='w')
+        f.write(data[0] + '\n' + data[1])
+        f.close()
+        self.paintEvent(1)
+
+    def setFontColor(self):
+        color = QColorDialog.getColor()
+        data = open(colors_config, encoding='utf-8').readlines()
+        data[1] = str(color.rgba())
+        for n in range(2):
+            data[n] = data[n].replace('\n', '')
+
+        f = open(colors_config, encoding='utf-8', mode='w')
+        f.write(data[0] + '\n' + data[1])
+        f.close()
+        self.paintEvent(1)
 
     def start(self, file_is_ready=False):
         global is_running
@@ -221,8 +276,13 @@ class SettingsWindow(QMainWindow):
             f.writelines(map(lambda x: str(x) + '\n', data))
             f.close()
             is_running = True
-            self.start_main()
-            self.close()
+            try:
+                os.chdir(data[0])
+                self.start_main()
+                self.close()
+            except FileNotFoundError:
+                self.label_6.setText('Папка с картинками не найдена')
+                self.show()
         elif not file_is_ready:
             self.label_6.setText('Заполните все поля.')
         else:

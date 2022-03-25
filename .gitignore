@@ -8,3 +8,4 @@ config.cfg
 /dist/
 /build/
 /show.txt
+/UI/colors.cfg
