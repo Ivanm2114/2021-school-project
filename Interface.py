@@ -54,7 +54,9 @@ class ShowWindow(QMainWindow):
         self.mode = 'standBy'
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
+
         self.pictures = []
+        data = open(colors_config, encoding='utf-8').readlines()
         file = open(showfile, mode='w')
         file.write(str(False))
         file.close()
@@ -69,6 +71,8 @@ class ShowWindow(QMainWindow):
         self.setWindowTitle('Показатор')
         self.label = QLabel(self)
         self.label.setFont(self.font)
+        r, g, b, a = list(map(int, data[1][1:-1].split(',')))
+        self.label.setStyleSheet(f"color: rgba({r}, {g}, {b},{a})")
         self.count = 0
         self.label.move(200, 100)
         self.timer = QTimer()
@@ -95,6 +99,11 @@ class ShowWindow(QMainWindow):
             self.image.setVisible(True)
         else:
             self.error_no_pictures()
+        data = open(colors_config, encoding='utf-8').readlines()
+        r, g, b, a = list(map(int, data[0][1:-2].split(',')))
+        self.setStyleSheet(f"background-color: rgba({r},{g},{b},{a})")
+
+
 
     def error_no_pictures(self):
         self.label.setText('В папке нет подходящих картинок.')
@@ -221,7 +230,6 @@ class SettingsWindow(QMainWindow):
             self.show()
 
     def paintEvent(self, e):
-
         qp = QPainter()
         qp.begin(self)
         self.drawRecs(qp)
@@ -229,15 +237,17 @@ class SettingsWindow(QMainWindow):
 
     def drawRecs(self, qp):
         data = open(colors_config, encoding='utf-8').readlines()
-        qp.setBrush(QColor(int(data[0])))
+        r, g, b, a = list(map(int, data[0][1:-2].split(',')))
+        qp.setBrush(QColor(r, g, b, a))
         qp.drawRect(150, 260, 75, 51)
-        qp.setBrush(QColor(int(data[1])))
+        r, g, b, a = list(map(int, data[1][1:-1].split(',')))
+        qp.setBrush(QColor(r, g, b, a))
         qp.drawRect(450, 260, 75, 51)
 
     def setBackColor(self):
         color = QColorDialog.getColor()
         data = open(colors_config, encoding='utf-8').readlines()
-        data[0] = str(color.rgba())
+        data[0] = str(color.getRgb())
         for n in range(2):
             data[n] = data[n].replace('\n', '')
         f = open(colors_config, encoding='utf-8', mode='w')
@@ -248,7 +258,7 @@ class SettingsWindow(QMainWindow):
     def setFontColor(self):
         color = QColorDialog.getColor()
         data = open(colors_config, encoding='utf-8').readlines()
-        data[1] = str(color.rgba())
+        data[1] = str(color.getRgb())
         for n in range(2):
             data[n] = data[n].replace('\n', '')
 
