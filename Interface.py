@@ -2,7 +2,7 @@ import sys
 import os
 import datetime
 from threading import Thread
-
+import keyboard
 from PyQt5 import uic, QtCore
 from PIL.ImageQt import ImageQt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog, QColorDialog
@@ -19,7 +19,11 @@ showfile = os.path.abspath('show.txt')
 icon = os.path.abspath('IMGs/monitor.ico')
 main = ''
 flaskThread = ''
+admin_panel = ''
 is_running = False
+
+
+
 
 
 def startFlaskThread():
@@ -183,6 +187,7 @@ class ShowWindow(QMainWindow):
                 os.remove('picture.png')
 
 
+
 class SettingsWindow(QMainWindow):
     def __init__(self):
         super(SettingsWindow, self).__init__()
@@ -319,6 +324,9 @@ class AdminPanelWindow(QMainWindow):
         self.closeButton.clicked.connect(self.closeAll)
         self.changeText('Ожидание запроса')
 
+    def closeEvent(self, e):
+        e.ignore()
+
     def returnToSettings(self):
         global main, settings
         main.close()
@@ -326,6 +334,7 @@ class AdminPanelWindow(QMainWindow):
         settings = SettingsWindow()
         settings.show()
         self.close()
+
 
     def closeAll(self):
         if 'picture.png' in os.listdir():
