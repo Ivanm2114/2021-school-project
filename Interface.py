@@ -50,7 +50,6 @@ class ShowWindow(QMainWindow):
             os.remove('picture.png')
         self.port = int(f[1])
         self.font = QFont()
-        self.showFullScreen()
         self.mode = 'standBy'
         self.interval = int(f[2]) * 1000
         self.font.setPointSize(int(f[4]))
@@ -203,7 +202,7 @@ class SettingsWindow(QMainWindow):
                 file.close()
         except FileNotFoundError:
             file = open(colors_config, encoding='utf-8', mode='w')
-            file.write('4293980400\n4278190080')
+            file.write('(240, 240, 240, 255)\n(0, 0 , 0, 255)')
             file.close()
         self.paintEvent(1)
         try:
