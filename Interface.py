@@ -2,7 +2,6 @@ import sys
 import os
 import datetime
 from threading import Thread
-import keyboard
 from PyQt5 import uic, QtCore
 from PIL.ImageQt import ImageQt
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget, QLabel, QFileDialog, QColorDialog
@@ -71,7 +70,7 @@ class ShowWindow(QMainWindow):
         self.move(QDesktopWidget().screenGeometry(self.screen_number).x(),
                   QDesktopWidget().screenGeometry(self.screen_number).y())
         self.showFullScreen()
-        self.setWindowTitle('Показатор')
+        self.setWindowTitle('Окно демонстрации')
         self.label = QLabel(self)
         self.label.setFont(self.font)
         r, g, b, a = list(map(int, data[1][1:-1].split(',')))
