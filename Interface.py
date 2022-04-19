@@ -22,9 +22,6 @@ admin_panel = ''
 is_running = False
 
 
-
-
-
 def startFlaskThread():
     import qr_api
     global flaskThread, main
@@ -64,7 +61,8 @@ class ShowWindow(QMainWindow):
         file.close()
         self.screen_number = int(f[3]) - 1
         for element in os.listdir():
-            if element[len(element) - 3:] in ['png', 'gif', 'jpg'] or element[len(element) - 4] == 'jpeg':
+            if element[len(element) - 3:].lower() in ['png', 'gif', 'jpg']\
+                    or element[len(element) - 4].lower() == 'jpeg':
                 self.pictures.append(element)
 
         self.move(QDesktopWidget().screenGeometry(self.screen_number).x(),
@@ -92,7 +90,7 @@ class ShowWindow(QMainWindow):
             self.a = ImageQt(self.current)
             self.image = QLabel(self)
             self.pixmap = QPixmap.fromImage(self.a)
-            self.pixmap = self.pixmap.scaled(self.h, self.h,
+            self.pixmap = self.pixmap.scaled(self.w, self.h,
                                              Qt.KeepAspectRatio)
             self.image.resize(self.pixmap.size())
             self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
@@ -104,8 +102,6 @@ class ShowWindow(QMainWindow):
         data = open(colors_config, encoding='utf-8').readlines()
         r, g, b, a = list(map(int, data[0][1:-2].split(',')))
         self.setStyleSheet(f"background-color: rgba({r},{g},{b},{a})")
-
-
 
     def error_no_pictures(self):
         self.label.setText('В папке нет подходящих картинок.')
@@ -134,7 +130,7 @@ class ShowWindow(QMainWindow):
             self.image.setVisible(True)
         else:
             self.label.move(self.w // 2 - self.label.width() // 2,
-                            self.h // 2)
+                            self.h // 2 - self.label.height() // 2)
             admin_panel.changeText('Демонстарция сообщения')
             self.image.setVisible(False)
 
@@ -145,7 +141,7 @@ class ShowWindow(QMainWindow):
             self.current = self.pictures[self.count]
             self.a = ImageQt(self.current)
             self.pixmap = QPixmap.fromImage(self.a)
-            self.pixmap = self.pixmap.scaled(self.h, self.h,
+            self.pixmap = self.pixmap.scaled(self.w, self.h,
                                              Qt.KeepAspectRatio)
             self.image.resize(self.pixmap.size())
             self.image.move(self.w // 2 - self.pixmap.size().width() // 2,
@@ -184,7 +180,6 @@ class ShowWindow(QMainWindow):
             self.changePicture()
             if 'picture.png' in os.listdir():
                 os.remove('picture.png')
-
 
 
 class SettingsWindow(QMainWindow):
@@ -333,7 +328,6 @@ class AdminPanelWindow(QMainWindow):
         settings = SettingsWindow()
         settings.show()
         self.close()
-
 
     def closeAll(self):
         if 'picture.png' in os.listdir():
